@@ -1,0 +1,13 @@
+
+annotated-doc==0.0.5
+fastapi==0.143.0
+google-auth==2.61.0
+google-genai==2.29.0
+httpx==0.28.1
+numpy==2.4.6
+pydantic==2.14.1
+pytest==9.1.1
+python-dotenv==1.2.4
+requests==2.34.2
+spacy==3.8.16
+uvicorn==0.54.0

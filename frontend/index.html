@@ -1,0 +1,558 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PersonaStudio — AI-powered synthetic user research and persona exploration.">
+    <meta name="theme-color" content="#f8f7f5">
+
+    <title>PersonaStudio | Synthetic User Research</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a class="brand" href="#" aria-label="PersonaStudio home">
+            <span class="brand-icon">S</span>
+            <span>Persona<span class="brand-light">Studio</span></span>
+        </a>
+
+        <p class="nav-label">WORKSPACE</p>
+
+        <nav aria-label="Main navigation">
+            <button class="nav-item active" data-view="dashboard" type="button">
+                <span aria-hidden="true">▦</span> Dashboard
+            </button>
+
+            <button class="nav-item" data-view="generate" type="button">
+                <span aria-hidden="true">✦</span> Generate Persona
+            </button>
+
+            <button class="nav-item" data-view="personas" type="button">
+                <span aria-hidden="true">♙</span> All Personas
+            </button>
+
+            <button class="nav-item" data-view="research" type="button">
+                <span aria-hidden="true">◈</span> Research Lab
+            </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="connection-card">
+                <span class="status-dot" id="statusDot"></span>
+                <div>
+                    <strong id="backendStatus">Checking backend</strong>
+                    <small>API connection</small>
+                </div>
+            </div>
+
+            <p class="sidebar-foot">
+                AI-powered UX research<br>
+                with synthetic users
+            </p>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">SYNTHETIC USER RESEARCH</p>
+                <h1 id="pageTitle">Dashboard</h1>
+            </div>
+
+            <button class="primary-button" id="headerGenerate" type="button">
+                ＋ Generate persona
+            </button>
+        </header>
+
+        <div
+            id="notice"
+            class="notice hidden"
+            role="status"
+            aria-live="polite"
+        ></div>
+
+        <!-- DASHBOARD -->
+        <section class="view" id="dashboardView">
+
+            <div class="welcome-panel">
+                <div class="welcome-copy">
+                    <span class="pill">✦ AI PERSONA GENERATOR</span>
+
+                    <h2>
+                        Understand your users.<br>
+                        <span>Design with confidence.</span>
+                    </h2>
+
+                    <p>
+                        Create fictional Figma user personas using AI
+                        and your existing research context.
+                    </p>
+
+                    <button class="light-button" id="heroGenerate" type="button">
+                        Create a persona <span>→</span>
+                    </button>
+                </div>
+
+                <div class="welcome-art" aria-hidden="true">
+                    <div class="orb orb-one"></div>
+                    <div class="orb orb-two"></div>
+
+                    <div class="floating-card card-one">
+                        ✦ <span>AI insights</span>
+                    </div>
+
+                    <div class="profile-art">
+                        <div class="avatar-art">UX</div>
+                        <div class="art-line long"></div>
+                        <div class="art-line"></div>
+                        <div class="art-chip">Synthetic user</div>
+                    </div>
+
+                    <div class="floating-card card-two">
+                        ✓ <span>Persona ready</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-heading">
+                <div>
+                    <h2>Workspace overview</h2>
+                    <p>Your synthetic persona library at a glance.</p>
+                </div>
+
+                <button class="text-button" id="refreshButton" type="button">
+                    ↻ Refresh
+                </button>
+            </div>
+
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-icon purple">♙</div>
+                    <p>Total personas</p>
+                    <h3 id="totalCount">—</h3>
+                    <small>Saved in your database</small>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon green">✓</div>
+                    <p>Active personas</p>
+                    <h3 id="activeCount">—</h3>
+                    <small>Available for research</small>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon orange">▤</div>
+                    <p>Archived personas</p>
+                    <h3 id="archivedCount">—</h3>
+                    <small>Stored for reference</small>
+                </article>
+            </div>
+
+            <div class="section-heading">
+                <div>
+                    <h2>Recent personas</h2>
+                    <p>Recently saved synthetic users.</p>
+                </div>
+
+                <button class="text-button" id="viewAllButton" type="button">
+                    View all →
+                </button>
+            </div>
+
+            <div id="recentPersonas" class="persona-grid">
+                <div class="empty-state">Loading personas…</div>
+            </div>
+        </section>
+
+        <!-- GENERATE PERSONA -->
+        <section class="view hidden" id="generateView">
+
+            <div class="page-intro">
+                <span class="pill">GEMINI POWERED</span>
+                <h2>Generate a synthetic persona</h2>
+                <p>
+                    Describe the type of Figma user you want to understand.
+                    The backend can use relevant context from SQLite.
+                </p>
+            </div>
+
+            <div class="form-layout">
+
+                <form id="generateForm" class="panel form-panel">
+                    <h3>Persona requirements</h3>
+                    <p>Provide a few details to guide generation.</p>
+
+                    <label for="role">User role <span>*</span></label>
+                    <input
+                        id="role"
+                        name="role"
+                        type="text"
+                        required
+                        maxlength="120"
+                        placeholder="e.g. UX Designer"
+                    >
+
+                    <label for="experience">Experience level <span>*</span></label>
+                    <select id="experience" name="experience" required>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate" selected>Intermediate</option>
+                        <option value="expert">Expert</option>
+                    </select>
+
+                    <label for="goal">Main goal <span>*</span></label>
+                    <textarea
+                        id="goal"
+                        name="goal"
+                        required
+                        maxlength="600"
+                        rows="4"
+                        placeholder="e.g. Improve usability and discover advanced Figma features"
+                    ></textarea>
+
+                    <div class="form-note">
+                        <span aria-hidden="true">✦</span>
+                        <p>
+                            Generated personas are fictional. They should
+                            not be treated as verified evidence about real users.
+                        </p>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="primary-button full-button"
+                        id="generateButton"
+                    >
+                        <span>✦</span> Generate persona
+                    </button>
+                </form>
+
+                <aside class="panel tips-panel">
+                    <div class="tips-icon">✧</div>
+                    <h3>Tips for better personas</h3>
+
+                    <ul>
+                        <li>
+                            <strong>Be specific</strong>
+                            <span>Choose a clear role or user group.</span>
+                        </li>
+                        <li>
+                            <strong>Define a goal</strong>
+                            <span>Describe the task or problem they need to solve.</span>
+                        </li>
+                        <li>
+                            <strong>Use as a starting point</strong>
+                            <span>Validate assumptions with real user research.</span>
+                        </li>
+                    </ul>
+                </aside>
+            </div>
+
+            <div
+                id="generatedResult"
+                class="hidden result-section"
+                aria-live="polite"
+            ></div>
+        </section>
+
+        <!-- ALL PERSONAS -->
+        <section class="view hidden" id="personasView">
+
+            <div class="section-heading persona-toolbar">
+                <div>
+                    <h2>Your persona library</h2>
+                    <p>Browse, edit, and archive saved personas.</p>
+                </div>
+
+                <div class="toolbar-controls">
+                    <input
+                        id="searchInput"
+                        type="search"
+                        placeholder="Search personas…"
+                        aria-label="Search personas"
+                    >
+
+                    <select
+                        id="statusFilter"
+                        aria-label="Filter personas by status"
+                    >
+                        <option value="all">All statuses</option>
+                        <option value="active">Active</option>
+                        <option value="archived">Archived</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="allPersonas" class="persona-grid">
+                <div class="empty-state">Loading personas…</div>
+            </div>
+        </section>
+
+        <!-- RESEARCH LAB -->
+        <section class="view hidden" id="researchView">
+
+            <div class="page-intro">
+                <span class="pill">MILESTONE 2 · AI RESEARCH</span>
+                <h2>Research Lab</h2>
+                <p>
+                    Explore psychological profiles, generate synthetic
+                    interview and survey responses, and inspect persona
+                    memories and consistency reports.
+                </p>
+            </div>
+
+            <!-- Research persona selector -->
+            <section class="panel research-controls">
+                <h3>Select your research subject</h3>
+                <p>Choose a saved persona before running a research action.</p>
+
+                <label for="researchPersona">Select persona</label>
+
+                <select id="researchPersona" required>
+                    <option value="">Select a persona…</option>
+                </select>
+
+                <div class="toolbar-controls research-actions">
+                    <button
+                        class="primary-button"
+                        id="profileAction"
+                        type="button"
+                    >
+                        ✦ Generate profile
+                    </button>
+
+                    <button
+                        class="small-button"
+                        id="memoryAction"
+                        type="button"
+                    >
+                        View memories
+                    </button>
+
+                    <button
+                        class="small-button"
+                        id="reportAction"
+                        type="button"
+                    >
+                        Latest report
+                    </button>
+                </div>
+            </section>
+
+            <!-- Psychological profile -->
+            <section class="panel research-panel">
+                <h3>Psychological profile</h3>
+                <p>Explore estimated traits and behavioral tendencies.</p>
+
+                <div
+                    id="profileResult"
+                    class="research-result"
+                    aria-live="polite"
+                >
+                    <div class="empty-state">
+                        <h3>No profile generated yet</h3>
+                        <p>
+                            Select a persona and choose Generate profile
+                            to view the results.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Interview and survey -->
+            <div class="research-stack">
+
+                <section class="panel research-panel">
+                    <h3>Synthetic interview</h3>
+                    <p>
+                        Ask an open-ended question and explore the persona's
+                        simulated response.
+                    </p>
+
+                    <label for="interviewQuestion">Interview question</label>
+                    <textarea
+                        id="interviewQuestion"
+                        rows="3"
+                        maxlength="1500"
+                        placeholder="What features would you prioritize when testing a design tool?"
+                    ></textarea>
+
+                    <button
+                        class="primary-button full-button"
+                        id="interviewAction"
+                        type="button"
+                    >
+                        Generate interview response
+                    </button>
+
+                    <div
+                        id="interviewResult"
+                        class="research-result"
+                        aria-live="polite"
+                    ></div>
+                </section>
+
+                <section class="panel research-panel">
+                    <h3>Quick survey</h3>
+                    <p>
+                        Generate a simulated survey answer for the selected
+                        persona.
+                    </p>
+
+                    <label for="surveyQuestion">Survey question</label>
+                    <textarea
+                        id="surveyQuestion"
+                        rows="3"
+                        maxlength="1500"
+                        placeholder="How important is clear navigation in a design tool?"
+                    ></textarea>
+
+                    <button
+                        class="primary-button full-button"
+                        id="surveyAction"
+                        type="button"
+                    >
+                        Generate survey answer
+                    </button>
+
+                    <div
+                        id="surveyResult"
+                        class="research-result"
+                        aria-live="polite"
+                    ></div>
+                </section>
+
+            </div>
+
+            <!-- Persona memories and consistency reports -->
+            <section class="panel research-panel research-history">
+                <h3>Persona memory &amp; consistency</h3>
+                <p>
+                    Review stored interactions and the latest validation report.
+                </p>
+
+                <div class="research-output-group">
+                    <h4>Stored memories</h4>
+
+                    <div
+                        id="memoryResult"
+                        class="research-result"
+                        aria-live="polite"
+                    >
+                        <div class="empty-state">
+                            <p>
+                                Select View memories to inspect stored
+                                persona interactions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="research-output-group">
+                    <h4>Latest consistency report</h4>
+
+                    <div
+                        id="reportResult"
+                        class="research-result"
+                        aria-live="polite"
+                    >
+                        <div class="empty-state">
+                            <p>
+                                Select Latest report to inspect the latest
+                                consistency report.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span>PersonaStudio</span>
+            <span>Built for synthetic UX research · Figma</span>
+        </footer>
+
+    </main>
+</div>
+
+<!-- PERSONA DETAILS DIALOG -->
+<dialog id="detailsDialog" class="details-dialog">
+    <div class="dialog-header">
+        <div>
+            <p class="eyebrow">PERSONA DETAILS</p>
+            <h2 id="dialogTitle">Persona</h2>
+        </div>
+
+        <button
+            class="icon-button"
+            id="closeDialog"
+            type="button"
+            aria-label="Close persona details"
+        >
+            ✕
+        </button>
+    </div>
+
+    <div id="dialogBody"></div>
+</dialog>
+
+<!-- EDIT PERSONA DIALOG -->
+<dialog id="editDialog" class="details-dialog">
+    <div class="dialog-header">
+        <div>
+            <p class="eyebrow">PERSONA MANAGEMENT</p>
+            <h2>Edit persona</h2>
+        </div>
+
+        <button
+            class="icon-button"
+            id="closeEditDialog"
+            type="button"
+            aria-label="Close edit dialog"
+        >
+            ✕
+        </button>
+    </div>
+
+    <form id="editForm">
+        <input type="hidden" id="editId">
+
+        <label for="editRole">Role</label>
+        <input id="editRole" required maxlength="120">
+
+        <label for="editExperience">Experience level</label>
+        <input id="editExperience" required maxlength="80">
+
+        <label for="editSkills">Skills (comma-separated)</label>
+        <textarea id="editSkills" rows="2"></textarea>
+
+        <label for="editGoals">Goals (comma-separated)</label>
+        <textarea id="editGoals" rows="2"></textarea>
+
+        <label for="editPreferences">Preferences (comma-separated)</label>
+        <textarea id="editPreferences" rows="2"></textarea>
+
+        <label for="editChallenges">Challenges (comma-separated)</label>
+        <textarea id="editChallenges" rows="2"></textarea>
+
+        <label for="editWorkingStyle">Working style</label>
+        <textarea id="editWorkingStyle" rows="2"></textarea>
+
+        <button type="submit" class="primary-button full-button">
+            Save changes
+        </button>
+    </form>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
